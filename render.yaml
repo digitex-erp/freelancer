@@ -1,0 +1,45 @@
+# Render.com Deployment Configuration
+# Bell24h Freelancer AI Agent
+
+services:
+  # Main Web Service (Frontend + API)
+  - type: web
+    name: freelancer-ai-agent
+    runtime: node
+    plan: free
+    buildCommand: npm install && npm run build
+    startCommand: node server.js
+    envVars:
+      - key: NODE_VERSION
+        value: 20.11.1
+      - key: DATABASE_URL
+        sync: false  # Set manually in Render dashboard
+      - key: GEMINI_API_KEY
+        sync: false  # Set manually in Render dashboard
+      - key: API_KEY
+        sync: false  # Fallback for GEMINI_API_KEY
+      - key: OPENAI_API_KEY
+        sync: false  # Optional
+      - key: ANTHROPIC_API_KEY
+        sync: false  # Optional
+      - key: RESEND_API_KEY
+        sync: false  # Optional
+    healthCheckPath: /api/health
+    
+  # Cron Job for Lead Fetching
+  - type: cron
+    name: fetch-leads-cron
+    runtime: node
+    schedule: "0 8 * * *"  # Daily at 8 AM UTC
+    buildCommand: npm install
+    startCommand: node -e "fetch('./api/cron/fetch-leads')"
+    envVars:
+      - key: DATABASE_URL
+        sync: false
+      - key: GEMINI_API_KEY
+        sync: false
+      - key: API_KEY
+        sync: false
+
+# Database (Use existing Neon PostgreSQL)
+# No need to create database in Render - we're using Neon
