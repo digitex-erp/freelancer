@@ -5,6 +5,7 @@ import { fileURLToPath } from 'url';
 import dotenv from 'dotenv';
 import apiHandler from './api/index';
 import fetchLeads from './api/cron/fetch-leads';
+import { testConnection } from './api/_lib/db';
 
 // Load env vars
 dotenv.config();
@@ -72,7 +73,13 @@ app.get('*', (req, res) => {
   res.sendFile(path.join(__dirname, 'dist', 'index.html'));
 });
 
+// Test DB on Startup
+testConnection().then(success => {
+  if (!success) console.error("⚠️ WARNING: DB Connection failed on startup. Check logs.");
+});
+
 app.listen(PORT, () => {
   console.log(`🚀 Bell24h AI Agent (Cloud Run) running on port ${PORT}`);
 });
+
 
