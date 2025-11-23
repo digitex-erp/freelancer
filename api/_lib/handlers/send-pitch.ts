@@ -17,7 +17,7 @@ export const handler = async (req: any, res: any) => {
     if (resendKey && !resendKey.startsWith('re_mock') && !resendKey.includes('placeholder')) {
         const resend = new Resend(resendKey);
         const { data, error } = await resend.emails.send({
-            from: process.env.EMAIL_FROM || 'Bell24h Agent <onboarding@resend.dev>',
+            from: process.env.EMAIL_FROM || 'Freelancer Agent <onboarding@resend.dev>',
             to: [to],
             replyTo: 'ssse.vishal@gmail.com',
             subject: subject || 'Inquiry from Bell24h',

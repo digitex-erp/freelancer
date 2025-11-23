@@ -192,7 +192,7 @@ export default function App() {
                <div className="w-8 h-8 bg-indigo-600 rounded-lg flex items-center justify-center shadow-lg shadow-indigo-500/20">
                   <i className="fas fa-robot text-white"></i>
                </div>
-               <h1 className="font-bold text-lg tracking-tight text-white">Bell24h <span className="text-slate-500 font-normal">Agent</span></h1>
+               <h1 className="font-bold text-lg tracking-tight text-white">Freelancer <span className="text-slate-500 font-normal">Agent</span></h1>
                {useClientSideAI && (
                  <span className="bg-amber-500/10 text-amber-500 text-[10px] px-2 py-0.5 rounded border border-amber-500/20 font-mono">
                    CLIENT_MODE

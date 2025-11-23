@@ -1,5 +1,5 @@
 {
-  "name": "bell24h-ai-agent",
+  "name": "freelancer-ai-agent",
   "version": "2.2.0",
   "private": true,
   "type": "module",
@@ -42,3 +42,4 @@
     "vite": "^6.4.1"
   }
 }
+

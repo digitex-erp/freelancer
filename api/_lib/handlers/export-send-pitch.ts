@@ -6,7 +6,7 @@ async function sendWithResend(from: string, to: string, subject: string, body: s
   if (!key) throw new Error("RESEND_API_KEY not set");
   const resend = new Resend(key);
   const { data, error } = await resend.emails.send({
-    from: 'Bell24h Agent <onboarding@resend.dev>', 
+    from: 'Freelancer Agent <onboarding@resend.dev>', 
     to: [to],
     subject: subject,
     html: body.replace(/\n/g, '<br>'),
