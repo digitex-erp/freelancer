@@ -1,0 +1,10 @@
+{
+  "rewrites": [
+    { "source": "/api/cron/fetch-leads", "destination": "/api/cron/fetch-leads" },
+    { "source": "/api/(.*)", "destination": "/api/index" }
+  ],
+  "functions": {
+    "api/index.ts": { "memory": 1024, "maxDuration": 60 },
+    "api/cron/fetch-leads.ts": { "memory": 1024, "maxDuration": 60 }
+  }
+}

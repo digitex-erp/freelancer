@@ -1,0 +1,243 @@
+{
+  "name": "Bell24h - Free Procurement Hunter (RSS) v3",
+  "nodes": [
+    {
+      "id": "Cron_1",
+      "name": "Every 2 Hours",
+      "type": "n8n-nodes-base.cron",
+      "typeVersion": 1,
+      "position": [100, 300],
+      "parameters": {
+        "triggerTimes": {
+          "item": [
+            { "hour": 2 },
+            { "hour": 8 },
+            { "hour": 14 },
+            { "hour": 20 }
+          ]
+        }
+      }
+    },
+    {
+      "id": "RSS_Upwork",
+      "name": "Upwork RSS",
+      "type": "n8n-nodes-base.rssFeedRead",
+      "typeVersion": 1,
+      "position": [300, 100],
+      "parameters": {
+        "url": "https://www.upwork.com/ab/feed/jobs/rss?q=automation%20OR%20n8n%20OR%20wordpress%20OR%20woocommerce"
+      }
+    },
+    {
+      "id": "RSS_Textile",
+      "name": "Textile/Fabric Feeds",
+      "type": "n8n-nodes-base.rssFeedRead",
+      "typeVersion": 1,
+      "position": [300, 250],
+      "notes": "Simulate or use real Textile Infomedia RSS if available",
+      "parameters": {
+        "url": "https://www.reddit.com/r/textile/new/.rss"
+      }
+    },
+    {
+      "id": "RSS_ForHire",
+      "name": "Reddit r/ForHire",
+      "type": "n8n-nodes-base.rssFeedRead",
+      "typeVersion": 1,
+      "position": [300, 400],
+      "parameters": {
+        "url": "https://www.reddit.com/r/forhire/new/.rss"
+      }
+    },
+    {
+      "id": "Merge_Sources",
+      "name": "Merge All Sources",
+      "type": "n8n-nodes-base.merge",
+      "typeVersion": 2,
+      "position": [550, 300],
+      "parameters": {
+        "mode": "append"
+      }
+    },
+    {
+      "id": "Normalize_Jobs",
+      "name": "Normalize Jobs",
+      "type": "n8n-nodes-base.function",
+      "typeVersion": 1,
+      "position": [750, 300],
+      "parameters": {
+        "functionCode": "return items.map(item => {\n  const json = item.json;\n  let source = 'Unknown';\n  let title = json.title || '';\n  let description = json.content || json.description || json.contentSnippet || '';\n  let url = json.link || json.url || '';\n\n  if (url.includes('upwork')) source = 'Upwork RSS';\n  else if (url.includes('reddit')) source = 'Reddit RSS';\n  else source = 'Trade Feed';\n\n  return {\n    json: {\n      title,\n      description,\n      url,\n      source,\n      date: new Date().toISOString()\n    }\n  };\n});"
+      }
+    },
+    {
+      "id": "OpenAI_Classify",
+      "name": "Gemini Classifier",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 3,
+      "position": [950, 300],
+      "parameters": {
+        "method": "POST",
+        "url": "https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=YOUR_API_KEY",
+        "bodyParameters": {
+          "contents": [
+            {
+              "parts": [
+                {
+                  "text": "You are classifying leads for Vishal Pendharkar.\nVishal's Profile:\n1. Fabric Sample Book Manufacturer (Bhiwandi, 25yrs Exp, Upholstery/Curtain).\n2. Freelance Web Dev (WordPress, n8n).\n3. EN590 Diesel Broker.\n\nClassify the job below into one of these categories: [\"FABRIC_MANUFACTURING\", \"FREELANCE\", \"EXPORT_TRADE\", \"EN590\", \"IGNORE\"].\n\nReturn strictly JSON: { \"category\": \"...\", \"score\": 0-100 }\n\nTitle: {{$json[\"title\"]}}\nDesc: {{$json[\"description\"]}}"
+                }
+              ]
+            }
+          ]
+        }
+      }
+    },
+    {
+      "id": "Parse_Class",
+      "name": "Parse Classification",
+      "type": "n8n-nodes-base.function",
+      "typeVersion": 1,
+      "position": [1150, 300],
+      "parameters": {
+        "functionCode": "return items.map(item => {\n  const text = item.json.candidates?.[0]?.content?.parts?.[0]?.text || '{}';\n  // clean markdown if present\n  const cleanText = text.replace(/```json/g, '').replace(/```/g, '');\n  let data = {};\n  try { data = JSON.parse(cleanText); } catch(e) {}\n  return { json: { ...item.json, ...data } };\n});"
+      }
+    },
+    {
+      "id": "Switch_Category",
+      "name": "Route by Category",
+      "type": "n8n-nodes-base.switch",
+      "typeVersion": 1,
+      "position": [1350, 300],
+      "parameters": {
+        "dataType": "string",
+        "value1": "={{$json[\"category\"]}}",
+        "rules": {
+          "rules": [
+            {
+              "value2": "FREELANCE",
+              "output": 0
+            },
+            {
+              "value2": "EXPORT_TRADE",
+              "output": 0
+            },
+            {
+              "value2": "FABRIC_MANUFACTURING",
+              "output": 0
+            },
+            {
+              "value2": "EN590",
+              "output": 1
+            }
+          ]
+        },
+        "fallbackOutput": 2
+      }
+    },
+    {
+      "id": "Gemini_Pitch_Main",
+      "name": "Pitch: Main (Fabric/Dev)",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 3,
+      "position": [1600, 150],
+      "parameters": {
+        "method": "POST",
+        "url": "https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=YOUR_API_KEY",
+        "bodyParameters": {
+          "contents": [
+            {
+              "parts": [
+                {
+                  "text": "You are writing a high-conversion cold email for Vishal Pendharkar.\n\nContext:\n- Job Title: {{$json[\"title\"]}}\n- Description: {{$json[\"description\"]}}\n- Category: {{$json[\"category\"]}}\n\nInstructions based on Category:\n\n1. **FABRIC_MANUFACTURING** (Target: Textile Mills/Wholesalers in India):\n   - **Hook**: \"I own a manufacturing unit in Bhiwandi with 25 years of legacy in making high-quality Sample Books & Shade Cards.\"\n   - **Expertise**: Mention specialization in Upholstery, Curtains, Heavy Velvet, and Jacquard fabrics. Mention \"Waterfall Binding\" and \"Hardbound Catalogs\".\n   - **CTA**: \"I invite you to visit our unit in Bhiwandi or send sample swatches for a mock-up.\"\n   - **Tone**: Respectful, Industrial, Experienced owner-to-owner.\n\n2. **FREELANCE** (Target: Business Owners/Agencies):\n   - **Hook**: \"I am a Full-Stack Automation Expert & Web Developer.\"\n   - **Expertise**: WordPress, WooCommerce, Shopify, and specifically AI Automation using n8n and Gemini API.\n   - **CTA**: \"Let's discuss how I can automate this workflow for you.\"\n   - **Tone**: Professional, Technical, Solution-oriented.\n\n3. **EXPORT_TRADE** (Target: International Buyers):\n   - **Hook**: \"Sourcing Agent based in India.\"\n   - **CTA**: Request specific requirements and target price.\n\nOutput ONLY the email body. Do not include subject line.\nSign off strictly as:\nVishal Pendharkar\nOwner - Bhiwandi Unit (Fabric Sample Books) | Bell24h.com"
+                }
+              ]
+            }
+          ]
+        }
+      }
+    },
+    {
+      "id": "Gemini_Pitch_EN590",
+      "name": "Pitch: EN590",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 3,
+      "position": [1600, 450],
+      "parameters": {
+        "method": "POST",
+        "url": "https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=YOUR_API_KEY",
+        "bodyParameters": {
+          "contents": [
+            {
+              "parts": [
+                {
+                  "text": "You are writing a formal business introduction for an EN590 Diesel transaction.\nSender: Vishal Pendharkar (Intermediary/Broker)\n\nContext:\n- Job/Lead: {{$json[\"title\"]}}\n- Description: {{$json[\"description\"]}}\n\nInstructions:\n1. **Role**: Clearly state you act as an Intermediary/Broker on a commission basis.\n2. **Offer**: You represent vetted seller mandates/buyers (depending on context).\n3. **Requirements**: \n   - If buying: Ask for SCO and Standard Procedures.\n   - If selling/general: Ask for LOI/ICPO and Target Price.\n4. **Tone**: Strict, Professional, Commodities Trade Standard. Brevity is key.\n5. **Key Phrases**: \"Non-circumvention\", \"Commission Protection\", \"FOB Rotterdam/CIF\".\n\nOutput ONLY the email body.\nSign off as:\nVishal Pendharkar\nCommission Agent | Bell24h.com"
+                }
+              ]
+            }
+          ]
+        }
+      }
+    },
+    {
+      "id": "Extract_Email",
+      "name": "Extract Lead Email",
+      "type": "n8n-nodes-base.function",
+      "typeVersion": 1,
+      "position": [1900, 300],
+      "parameters": {
+        "functionCode": "return items.map(item => {\n  const desc = item.json.description || '';\n  // simple regex to find email in description\n  const emailMatch = desc.match(/([a-zA-Z0-9._-]+@[a-zA-Z0-9._-]+\\.[a-zA-Z0-9_-]+)/);\n  const leadEmail = emailMatch ? emailMatch[0] : null;\n  const pitch = item.json.candidates?.[0]?.content?.parts?.[0]?.text || 'Pitch error';\n  \n  return {\n    json: {\n      ...item.json,\n      leadEmail,\n      pitch\n    }\n  };\n});"
+      }
+    },
+    {
+      "id": "Gmail_Send",
+      "name": "Send Application",
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2,
+      "position": [2100, 300],
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "YOUR_GMAIL_CREDENTIAL_ID",
+          "name": "Gmail account"
+        }
+      },
+      "parameters": {
+        "resource": "message",
+        "operation": "send",
+        "from": "ssse.vishal@gmail.com",
+        "to": "={{$json[\"leadEmail\"] || 'ssse.vishal@gmail.com'}}",
+        "subject": "Application: {{$json[\"title\"]}}",
+        "message": "={{$json[\"pitch\"]}}",
+        "additionalFields": {
+          "appendAttribution": false
+        }
+      }
+    }
+  ],
+  "connections": {
+    "Cron_1": {
+      "main": [
+        [
+          { "node": "Upwork RSS", "type": "main", "index": 0 },
+          { "node": "Textile/Fabric Feeds", "type": "main", "index": 0 },
+          { "node": "Reddit r/ForHire", "type": "main", "index": 0 }
+        ]
+      ]
+    },
+    "Upwork RSS": { "main": [[{ "node": "Merge All Sources", "type": "main", "index": 0 }]] },
+    "Textile/Fabric Feeds": { "main": [[{ "node": "Merge All Sources", "type": "main", "index": 1 }]] },
+    "Reddit r/ForHire": { "main": [[{ "node": "Merge All Sources", "type": "main", "index": 2 }]] },
+    "Merge All Sources": { "main": [[{ "node": "Normalize Jobs", "type": "main", "index": 0 }]] },
+    "Normalize Jobs": { "main": [[{ "node": "Gemini Classifier", "type": "main", "index": 0 }]] },
+    "Gemini Classifier": { "main": [[{ "node": "Parse Classification", "type": "main", "index": 0 }]] },
+    "Parse Classification": { "main": [[{ "node": "Route by Category", "type": "main", "index": 0 }]] },
+    "Route by Category": {
+      "main": [
+        [ { "node": "Pitch: Main (Fabric/Dev)", "type": "main", "index": 0 } ],
+        [ { "node": "Pitch: EN590", "type": "main", "index": 0 } ],
+        []
+      ]
+    },
+    "Pitch: Main (Fabric/Dev)": { "main": [[{ "node": "Extract Lead Email", "type": "main", "index": 0 }]] },
+    "Pitch: EN590": { "main": [[{ "node": "Extract Lead Email", "type": "main", "index": 0 }]] },
+    "Extract Lead Email": { "main": [[{ "node": "Send Application", "type": "main", "index": 0 }]] }
+  }
+}

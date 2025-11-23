@@ -1,0 +1,5 @@
+{
+  "name": "Freelancer AI Agent",
+  "description": "AI-powered automation dashboard for freelance job analysis, scoring, and pitch generation using Google Gemini.",
+  "requestFramePermissions": []
+}
