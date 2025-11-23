@@ -1,20 +1,21 @@
-import React, { useState, useEffect } from 'react';
+﻿import React, { useState, useEffect } from 'react';
 import { Job, Agent, JobCategory } from './types';
 import { AGENTS_LIST, MOCK_JOBS, VISHAL_PROFILE } from './constants';
 import JobCard from './components/JobCard';
 import PitchModal from './components/PitchModal';
 import ExportDrafts from './components/ExportDrafts';
+import ProductCatalog from './components/ProductCatalog';
 import { GeminiService } from './services/geminiService';
 
 export default function App() {
-  const [activeView, setActiveView] = useState<'feed' | 'drafts'>('feed');
+  const [activeView, setActiveView] = useState<'feed' | 'drafts' | 'products'>('feed');
   const [jobs, setJobs] = useState<Job[]>([]);
   const [loading, setLoading] = useState(false);
   const [agents, setAgents] = useState<Agent[]>(AGENTS_LIST);
   const [useClientSideAI, setUseClientSideAI] = useState(false);
   
   // Client-side AI Service (Lazy loaded)
-  const [geminiService] = useState(() => new GeminiService(process.env.API_KEY || ''));
+  const [geminiService] = useState(() => new GeminiService(process.env.GEMINI_API_KEY || ''));
   
   // Modal State
   const [modalOpen, setModalOpen] = useState(false);
@@ -61,7 +62,7 @@ export default function App() {
       let analysis;
       
       if (useClientSideAI) {
-        console.log("🤖 Agent: Analyzing via Client-Side Gemini...");
+        console.log("ðŸ¤– Agent: Analyzing via Client-Side Gemini...");
         await new Promise(r => setTimeout(r, 500)); // UI feel
         analysis = await geminiService.analyzeJob(job, VISHAL_PROFILE);
       } else {
@@ -116,7 +117,7 @@ export default function App() {
       let pitchText = "";
 
       if (useClientSideAI) {
-        console.log("🤖 Agent: Generating Pitch via Client-Side Gemini...");
+        console.log("ðŸ¤– Agent: Generating Pitch via Client-Side Gemini...");
         pitchText = await geminiService.generatePitch(job, job.analysis, VISHAL_PROFILE);
       } else {
         const res = await fetch('/api/pitch', {
@@ -271,6 +272,10 @@ export default function App() {
 
           {activeView === 'drafts' && (
              <ExportDrafts />
+          )}
+
+          {activeView === 'products' && (
+             <ProductCatalog />
           )}
        </main>
 
