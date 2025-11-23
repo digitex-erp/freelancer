@@ -149,6 +149,10 @@ const JobCard: React.FC<JobCardProps> = ({ job, onAnalyze, onGeneratePitch, isPr
         )}
 
         {job.status === 'pitch_ready' && (
+           <div className='flex gap-2 flex-1'>
+             <button className='px-3 py-2 rounded-lg bg-slate-800 border border-slate-700 text-slate-400 text-xs hover:text-white transition-colors' title='Toggle Auto-Send'>
+               <i className='fas fa-robot'></i> Auto-Send
+             </button>
            <button
            onClick={() => onGeneratePitch(job)} 
            className="flex-1 bg-slate-700 hover:bg-slate-600 text-white py-2 rounded-lg text-sm font-medium transition-colors border border-slate-600"
@@ -162,4 +166,5 @@ const JobCard: React.FC<JobCardProps> = ({ job, onAnalyze, onGeneratePitch, isPr
 };
 
 export default JobCard;
+
 

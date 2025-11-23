@@ -1,3 +1,4 @@
+import basicAuth from 'express-basic-auth';
 import express from 'express';
 import path from 'path';
 import { fileURLToPath } from 'url';
@@ -12,6 +13,19 @@ const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
 const app = express();
+// Basic Auth Middleware
+const user = process.env.AUTH_USER;
+const pass = process.env.AUTH_PASS;
+if (user && pass) {
+  console.log('[Auth] Basic Auth Enabled');
+  app.use(basicAuth({
+    users: { [user]: pass },
+    challenge: true,
+    realm: 'Freelancer Agent'
+  }));
+} else {
+  console.warn('[Auth] No AUTH_USER/PASS set. Site is public.');
+}
 const PORT = process.env.PORT || 8080;
 
 // Middleware to parse JSON bodies

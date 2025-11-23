@@ -71,7 +71,27 @@ export async function analyzeLeadAI(input: string) {
       return JSON.parse(txt);
     },
 
+        async () => {
+      if (!anthropic) throw new Error('no-anthropic');
+      const msg = await anthropic.messages.create({
+        model: 'claude-3-haiku-20240307',
+        max_tokens: 1024,
+        messages: [{ role: 'user', content: input }]
+      });
+      const txt = extractText(msg);
+      return JSON.parse(txt || '{}');
+    },
     async () => {
+      if (!anthropic) throw new Error('no-anthropic');
+      const msg = await anthropic.messages.create({
+        model: 'claude-3-haiku-20240307',
+        max_tokens: 1024,
+        messages: [{ role: 'user', content: prompt }]
+      });
+      const txt = extractText(msg);
+      return JSON.parse(txt || '{}');
+    },
+async () => {
       if (!openai) throw new Error("no-openai");
       const r = await openai.chat.completions.create({
         model: "gpt-4o-mini",
@@ -133,7 +153,27 @@ export async function generatePitchAI(context: string, templateType: string) {
       const txt = extractText(response);
       return JSON.parse(txt || '{}');
     },
+        async () => {
+      if (!anthropic) throw new Error('no-anthropic');
+      const msg = await anthropic.messages.create({
+        model: 'claude-3-haiku-20240307',
+        max_tokens: 1024,
+        messages: [{ role: 'user', content: input }]
+      });
+      const txt = extractText(msg);
+      return JSON.parse(txt || '{}');
+    },
     async () => {
+      if (!anthropic) throw new Error('no-anthropic');
+      const msg = await anthropic.messages.create({
+        model: 'claude-3-haiku-20240307',
+        max_tokens: 1024,
+        messages: [{ role: 'user', content: prompt }]
+      });
+      const txt = extractText(msg);
+      return JSON.parse(txt || '{}');
+    },
+async () => {
       if (!openai) throw new Error("no-openai");
       const r = await openai.chat.completions.create({
         model: "gpt-4o-mini",
