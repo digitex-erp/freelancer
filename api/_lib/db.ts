@@ -14,7 +14,7 @@ function getSql() {
     
     // Neon / Postgres configuration optimized for Serverless
     sqlInstance = postgres(connectionString, {
-      ssl: 'require', // Enforce SSL for Neon
+      ssl: { rejectUnauthorized: false }, // FIX: Allow self-signed certs for Render/Neon
       max: 1,         // Reduce max connections for serverless to avoid running out
       idle_timeout: 20,
       connect_timeout: 10,
