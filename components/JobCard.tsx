@@ -52,7 +52,7 @@ const JobCard: React.FC<JobCardProps> = ({ job, onAnalyze, onGeneratePitch, isPr
       <div className="flex justify-between items-start mb-3">
         <div className="pr-20">
           <h3 className="text-lg font-bold text-slate-100 group-hover:text-white transition-colors">
-            <a href={job.id.startsWith('http') ? job.id : '#'} target="_blank" rel="noopener noreferrer" className="hover:underline decoration-slate-500 underline-offset-4">
+            <a href={String(job.id).startsWith('http') ? job.id : '#'} target="_blank" rel="noopener noreferrer" className="hover:underline decoration-slate-500 underline-offset-4">
                 {job.title}
             </a>
           </h3>
