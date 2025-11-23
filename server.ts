@@ -75,3 +75,4 @@ app.get('*', (req, res) => {
 app.listen(PORT, () => {
   console.log(`🚀 Bell24h AI Agent (Cloud Run) running on port ${PORT}`);
 });
+
