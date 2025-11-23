@@ -17,9 +17,10 @@ export const handler = async (req: any, res: any) => {
         Source: ${job.source || 'Unknown'}
 
         Tasks:
-        1. **Classify** into one of: ["FABRIC_MANUFACTURING", "FREELANCE", "EN590", "EXPORT_TRADE", "PARTNERSHIP", "IGNORE"].
+        1. **Classify** into one of: ["FABRIC_MANUFACTURING", "FREELANCE", "EN590", "EXPORT_TRADE", "PARTNERSHIP", "FULL_TIME_ROLE", "IGNORE"].
            - Fabric Manufacturing: Upholstery, Curtains, Shade Cards, Swatches (Context: India/Bhiwandi).
            - Freelance: Web Dev, WordPress, Automation.
+           - Full Time Role: Full Stack, Software Engineer, Developer (Employment).
            - EN590: Diesel, Fuel trading.
         
         2. **Extract Contacts** (CRITICAL): 
@@ -53,7 +54,8 @@ export const handler = async (req: any, res: any) => {
     else if (c.includes('FUEL') || c.includes('EN590')) cat = 'EN590';
     else if (c.includes('EXPORT')) cat = 'EXPORT_TRADE';
     else if (c.includes('PARTNER')) cat = 'PARTNERSHIP';
-    else if (!["FABRIC_MANUFACTURING", "FREELANCE", "EN590", "EXPORT_TRADE", "PARTNERSHIP"].includes(c)) cat = 'IGNORE';
+    else if (c.includes('FULL') || c.includes('EMPLOYMENT') || c.includes('ENGINEER')) cat = 'FULL_TIME_ROLE';
+    else if (!["FABRIC_MANUFACTURING", "FREELANCE", "EN590", "EXPORT_TRADE", "PARTNERSHIP", "FULL_TIME_ROLE"].includes(c)) cat = 'IGNORE';
     else cat = c;
 
     const result = {

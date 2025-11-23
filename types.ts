@@ -5,6 +5,7 @@ export enum JobCategory {
   EXPORT_TRADE = 'EXPORT_TRADE',
   EN590 = 'EN590',
   FABRIC_MANUFACTURING = 'FABRIC_MANUFACTURING',
+  FULL_TIME_ROLE = 'FULL_TIME_ROLE',
   IGNORE = 'IGNORE'
 }
 
@@ -85,3 +86,4 @@ export interface AppState {
   view: 'dashboard' | 'feed' | 'contacts' | 'sources' | 'settings';
   agents: Agent[];
 }
+

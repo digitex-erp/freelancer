@@ -17,6 +17,7 @@ const JobCard: React.FC<JobCardProps> = ({ job, onAnalyze, onGeneratePitch, isPr
       case JobCategory.EXPORT_TRADE: return 'bg-amber-900/50 text-amber-200 border-amber-500/50';
       case JobCategory.FREELANCE: return 'bg-blue-900/50 text-blue-200 border-blue-500/50';
       case JobCategory.PARTNERSHIP: return 'bg-emerald-900/50 text-emerald-200 border-emerald-500/50';
+      case JobCategory.FULL_TIME_ROLE: return 'bg-cyan-900/50 text-cyan-200 border-cyan-500/50';
       case JobCategory.IGNORE: return 'bg-gray-700/50 text-gray-400 border-gray-600';
       default: return 'bg-slate-800 text-slate-400 border-slate-700';
     }
@@ -161,3 +162,4 @@ const JobCard: React.FC<JobCardProps> = ({ job, onAnalyze, onGeneratePitch, isPr
 };
 
 export default JobCard;
+
