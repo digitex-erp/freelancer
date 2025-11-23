@@ -40,6 +40,20 @@ export const sql = new Proxy(function() {}, {
   }
 }) as unknown as ReturnType<typeof postgres>;
 
+// Helper to run unsafe queries (MUST BE EXPORTED)
+export async function query(text: string, params?: any[]) {
+  try {
+    const s = getSql();
+    const result = await s.unsafe(text, params || []);
+    return { rows: result, rowCount: result.length };
+  } catch (e: any) {
+    if (e.code === '42P01') {
+      console.warn("⚠️ DB Table missing:", e.message);
+    }
+    throw e;
+  }
+}
+
 // Explicit Connection Test Function
 export async function testConnection() {
   try {
@@ -65,7 +79,7 @@ export const db = {
         `;
         return result;
     } catch (e: any) {
-        if (e.code === '42P01') { // undefined_table code
+        if (e.code === '42P01') {
             console.warn("⚠️ Leads table missing. Returning empty list.");
             return [];
         }
