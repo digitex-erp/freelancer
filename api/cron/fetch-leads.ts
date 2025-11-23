@@ -7,12 +7,15 @@ import { generatePitchAI } from '../_lib/multiAI';
 const parser = new Parser({ timeout: 8000, headers: { 'User-Agent': 'Bell24h-Bot/4.0' } });
 
 // Combined Source List
-const SOURCES = [
-  { url: "https://www.upwork.com/ab/feed/jobs/rss?q=automation%20OR%20n8n%20OR%20wordpress%20OR%20woocommerce", type: "rss", name: "Upwork RSS" },
+const SOURCES =   { url: "https://www.upwork.com/ab/feed/jobs/rss?q=automation%20OR%20n8n%20OR%20wordpress%20OR%20woocommerce", type: "rss", name: "Upwork RSS" },
   { url: "https://www.reddit.com/r/textile/new/.rss", type: "rss", name: "Reddit Textile" },
   { url: "https://www.reddit.com/r/forhire/new/.rss", type: "rss", name: "Reddit ForHire" },
   { url: "https://www.freelancer.com/rss.xml", type: "rss", name: "Freelancer" },
-  { url: "https://remoteok.com/api", type: "json", name: "RemoteOK" }
+  { url: "https://remoteok.com/api", type: "json", name: "RemoteOK" },
+  // PHASE 2: GLOBAL TRADE SOURCES
+  { url: "https://news.google.com/rss/search?q=import+export+business+opportunities+when:1d&hl=en-IN&gl=IN&ceid=IN:en", type: "rss", name: "Google Trade News" },
+  { url: "https://news.google.com/rss/search?q=buying+requirement+india+export+when:1d&hl=en-IN&gl=IN&ceid=IN:en", type: "rss", name: "Global Buying Reqs" },
+  { url: "https://news.google.com/rss/search?q=tender+notice+export+import+when:1d&hl=en-IN&gl=IN&ceid=IN:en", type: "rss", name: "Global Tenders" }
 ];
 
 // Use generic any for request/response to support both Vercel and Express

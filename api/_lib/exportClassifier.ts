@@ -55,8 +55,7 @@ export async function classifyExportLead(params: {
   let reasoning = "regex-fallback";
 
   if (preferAI) {
-    const prompt = `
-      Analyze this lead. Return JSON.
+    const prompt = `      Analyze this lead. Return JSON.
       Input: ${title} ${description} Source: ${source}
       Schema: { category: "export_trade"|"fabric"|"en590"|"freelance"|"other", reasoning: "", contacts: {name,email,phone}, metadata: {product,hs_code,qty,country,incoterm,buyer_type} }
       
@@ -64,8 +63,8 @@ export async function classifyExportLead(params: {
       - "fabric": Textile, Sample Books, Shade Cards, Yarn, Upholstery.
       - "freelance": Web Dev, App Dev, Automation, n8n, API.
       - "en590": Diesel, Fuel, Petroleum, Commodities.
-      - "export_trade": General import/export (Rice, Sugar, Spices, etc).
-    `;
+      - "export_trade": ANY International Trade, Import/Export, Buying Requirement, Tender, or Government Procurement.
+      - "other": Only if it is completely irrelevant (e.g. spam, politics).`;
     try {
       usedAI = true;
       aiParsed = await analyzeLeadAI(prompt);
@@ -98,7 +97,7 @@ export async function classifyExportLead(params: {
   
   // Sanity check category
   const validCats = ["export_trade", "fabric", "en590", "freelance", "other"];
-  if (!validCats.includes(category)) category = "other";
+  // Restriction Removed: All categories allowed`n  // if (!validCats.includes(category)) category = "other";
 
   return {
     success: true,
