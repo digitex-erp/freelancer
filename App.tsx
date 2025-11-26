@@ -4,18 +4,17 @@ import { AGENTS_LIST, MOCK_JOBS, VISHAL_PROFILE } from './constants';
 import JobCard from './components/JobCard';
 import PitchModal from './components/PitchModal';
 import ExportDrafts from './components/ExportDrafts';
-import ProductCatalog from './components/ProductCatalog';
 import { GeminiService } from './services/geminiService';
 
 export default function App() {
-  const [activeView, setActiveView] = useState<'feed' | 'drafts' | 'products'>('feed');
+  const [activeView, setActiveView] = useState<'feed' | 'drafts'>('feed');
   const [jobs, setJobs] = useState<Job[]>([]);
   const [loading, setLoading] = useState(false);
   const [agents, setAgents] = useState<Agent[]>(AGENTS_LIST);
   const [useClientSideAI, setUseClientSideAI] = useState(false);
   
   // Client-side AI Service (Lazy loaded)
-  const [geminiService] = useState(() => new GeminiService(process.env.GEMINI_API_KEY || ''));
+  const [geminiService] = useState(() => new GeminiService(process.env.API_KEY || ''));
   
   // Modal State
   const [modalOpen, setModalOpen] = useState(false);
@@ -208,6 +207,10 @@ export default function App() {
                <button onClick={() => setActiveView('drafts')} className={`px-4 py-1.5 rounded-md text-sm font-medium transition-all ${activeView === 'drafts' ? 'bg-indigo-600 text-white shadow' : 'text-slate-400 hover:text-white'}`}>
                   Drafts
                </button>
+               <button onClick={() => setActiveView('products')} className={`px-4 py-1.5 rounded-md text-sm font-medium transition-all
+${activeView === 'products' ? 'bg-indigo-600 text-white shadow' : 'text-slate-400 hover:text-white'}`}>
+                  Products
+               </button>
             </nav>
 
             <button onClick={triggerHunter} disabled={loading} className="bg-emerald-600/10 hover:bg-emerald-600/20 text-emerald-400 border border-emerald-500/30 px-3 py-1.5 rounded-lg text-xs font-medium transition-colors flex items-center gap-2">
@@ -272,10 +275,6 @@ export default function App() {
 
           {activeView === 'drafts' && (
              <ExportDrafts />
-          )}
-
-          {activeView === 'products' && (
-             <ProductCatalog />
           )}
        </main>
 
