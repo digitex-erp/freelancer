@@ -4,6 +4,7 @@ import { AGENTS_LIST, MOCK_JOBS, VISHAL_PROFILE } from './constants';
 import JobCard from './components/JobCard';
 import PitchModal from './components/PitchModal';
 import ExportDrafts from './components/ExportDrafts';
+import ProductCatalog from './components/ProductCatalog';
 import { GeminiService } from './services/geminiService';
 
 export default function App() {
@@ -275,6 +276,10 @@ ${activeView === 'products' ? 'bg-indigo-600 text-white shadow' : 'text-slate-40
 
           {activeView === 'drafts' && (
              <ExportDrafts />
+          )}
+
+          {activeView === 'products' && (
+             <ProductCatalog />
           )}
        </main>
 
